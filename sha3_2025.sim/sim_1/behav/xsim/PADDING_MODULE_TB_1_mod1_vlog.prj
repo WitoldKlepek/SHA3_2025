@@ -1,7 +1,7 @@
 # compile verilog/system verilog design source files
 sv xil_defaultlib  \
 "../../../../sha3_2025.srcs/sources_1/new/PADDING_MODULE.sv" \
-"../../../../sha3_2025.srcs/sim_1/new/PADDING_MODULE_TB_1_mod1.sv" \
+"../../../../sha3_2025.srcs/sim_1/new/PADDING_MODULE_TB.sv" \
 
 # compile glbl module
 verilog xil_defaultlib "glbl.v"

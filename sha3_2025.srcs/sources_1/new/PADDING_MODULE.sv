@@ -97,18 +97,20 @@ assign rdPtr_short          = rdPtr[PTR_SIZE-1:0];
 
 assign distanceWrToRd = Ptr_Distance(nextWrPtr, rdPtr);
 //assign WORD_WAITING = (nextWrPtr >= Add_Modulo_Depth(rdPtr, RATIO) )? 1'b1 : 1'b0;
-assign WORD_WAITING = distanceWrToRd > RATIO ? 1'b1 : ((distanceWrToRd == RATIO & state == END_OF_MESSAGE) ? 1'b1 :1'b0);
+assign WORD_WAITING = distanceWrToRd > RATIO ? 1'b1 : (/*(distanceWrToRd == RATIO & state == END_OF_MESSAGE) ? 1'b1 :*/1'b0);
 
 typedef enum {  INIT,
                 MESSAGE,
                 END_OF_MESSAGE,
-                NO_MESSAGE} padding_fsm;
+                NO_MESSAGE,
+                MEMORY_FILLED_DURING_MESSAGE} padding_fsm;
 
 
 padding_fsm state;
 
 //assign is_data_entered = IN_VALID & !buf_full; //IN_VALID & !BLOCKED_INPUT
 assign is_data_entered = (IN_VALID & !buf_full)  | (buf_full & IN_VALID & READ_REQ_PERM); //IN_VALID & !BLOCKED_INPUT
+
 always_ff @(posedge CLK, posedge A_RST) begin
     if(A_RST == `RESET_ACTIVE) 
         state   <=  INIT;
@@ -125,7 +127,7 @@ always_ff @(posedge CLK, posedge A_RST) begin
                         if(buf_full)
                         //jeœli bufor zaczyna byæ pe³ny to nie mo¿na zakoñczyæ wiadomoœci
                         //paddingiem, bo nadpisze nastêpn¹!
-                            state   <=  NO_MESSAGE;
+                            state   <=  MEMORY_FILLED_DURING_MESSAGE;
                         else
                             state   <=  END_OF_MESSAGE;
                 END_OF_MESSAGE: begin
@@ -139,6 +141,15 @@ always_ff @(posedge CLK, posedge A_RST) begin
                     //czekamy na rozpoczêcie nowej wiadomoœci
                     if(is_data_entered)
                         state   <=  MESSAGE;
+                MEMORY_FILLED_DURING_MESSAGE:
+                    //kiedy wiadomosc jest nadawana ale w jej trakcie wype³ni siê buf
+                    if(READ_REQ_PERM)
+                        if(IN_VALID)
+                            //wiadomosc jest kontynuowana
+                            state   <=  MESSAGE;  
+                        else
+                            //jesli koniec to wystaw padding
+                            state   <=  END_OF_MESSAGE;          
                 default:
                     state   <=  INIT;      
             endcase
@@ -165,7 +176,7 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 end
                 MESSAGE: begin
                     //if(is_data_entered
-                    if(is_data_entered | !buf_full)                     
+                    //if(is_data_entered | !buf_full)                     
                         wrPtr   <=  nextWrPtr;
                     //else
                                      
@@ -178,6 +189,13 @@ always_ff @(posedge CLK, posedge A_RST) begin
                     if(is_data_entered)
                         wrPtr   <=  nextWrPtr;   
                 end
+                MEMORY_FILLED_DURING_MESSAGE: begin
+                    //wrPtr   <=  nextWrPtr;
+                    //if(READ_REQ_PERM)
+                        //if(IN_VALID)
+                        
+                        //else
+                end        
                 default: begin
                     //jak init bez nowej wiadomoœci
                     //wrPtr   <=  0;
@@ -216,10 +234,12 @@ always_comb
 begin
     if(state == END_OF_MESSAGE)
     //wtedy trzeba uzupe³niæ pamiêc o padding
-        for(int i = wrPtr_short ; i <= lastCellPtr_short;  i++) begin
-            if(lastCellPtr_short - wrPtr_short == 0)
-                memory[wrPtr_short+1+i]   =   {3'b011,{(IN_BUS_WIDTH-4){1'b0}},1'b1};
-            else
+        if(lastCellPtr_short - wrPtr_short == 0)
+            //CASE DO SPRAWDZENIA
+            memory[wrPtr_short]   =   {3'b011,{(IN_BUS_WIDTH-4){1'b0}},1'b1};
+        else
+            for(int i = wrPtr_short ; i <= lastCellPtr_short;  i++) begin
+            
                 case(i)
                         wrPtr_short:
                             memory[i]  =   {3'b011,{(IN_BUS_WIDTH-3){1'b0}}};
