@@ -97,7 +97,7 @@ assign rdPtr_short          = rdPtr[PTR_SIZE-1:0];
 
 assign distanceWrToRd = Ptr_Distance(nextWrPtr, rdPtr);
 //assign WORD_WAITING = (nextWrPtr >= Add_Modulo_Depth(rdPtr, RATIO) )? 1'b1 : 1'b0;
-assign WORD_WAITING = distanceWrToRd > RATIO ? 1'b1 : (/*(distanceWrToRd == RATIO & state == END_OF_MESSAGE) ? 1'b1 :*/1'b0);
+assign WORD_WAITING = distanceWrToRd >= 2*RATIO ? 1'b1 : (/*(distanceWrToRd == RATIO & state == END_OF_MESSAGE) ? 1'b1 :*/1'b0);
 
 typedef enum {  INIT,
                 MESSAGE,
@@ -176,7 +176,7 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 end
                 MESSAGE: begin
                     //if(is_data_entered
-                    //if(is_data_entered | !buf_full)                     
+                    if(is_data_entered | !buf_full)                     
                         wrPtr   <=  nextWrPtr;
                     //else
                                      
@@ -191,10 +191,13 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 end
                 MEMORY_FILLED_DURING_MESSAGE: begin
                     //wrPtr   <=  nextWrPtr;
-                    //if(READ_REQ_PERM)
-                        //if(IN_VALID)
-                        
-                        //else
+                    if(READ_REQ_PERM)
+                        //
+                        if(IN_VALID)
+                            wrPtr   <=  nextWrPtr;
+                        //
+                        else
+                            wrPtr   <=  nextWordPtr;
                 end        
                 default: begin
                     //jak init bez nowej wiadomoœci
