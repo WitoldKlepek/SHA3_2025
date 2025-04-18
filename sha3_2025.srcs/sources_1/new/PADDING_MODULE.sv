@@ -31,7 +31,9 @@ module PADDING_MODULE #(
     parameter MEMORY_DEPTH = `DEPTH,
     localparam PERMUTATION_WORD_SIZE = `PERMUTATION_VOLUME - 2*SHA3_VERSION,
     localparam PTR_SIZE = $clog2(MEMORY_DEPTH),
-    localparam RATIO =  PERMUTATION_WORD_SIZE / IN_BUS_WIDTH
+    localparam RATIO =  PERMUTATION_WORD_SIZE / IN_BUS_WIDTH,
+    localparam EOM_REGISTER_SIZE = MEMORY_DEPTH / RATIO,//eom - end of message
+    localparam EOM_PTR_SIZE = $clog2(EOM_REGISTER_SIZE)
 )   (    
     input logic CLK,
     input logic CE,
@@ -41,7 +43,9 @@ module PADDING_MODULE #(
     output logic [PERMUTATION_WORD_SIZE-1:0] PERMUTATION_WORD,
     output logic WORD_WAITING,
     input logic READ_REQ_PERM,
-    output logic BLOCKED_INPUT
+    output logic BLOCKED_INPUT,
+    output logic LAST_WORD_OF_MESSAGE,
+    output logic FIRST_MESSAGE_AFTER_INIT
 );
 
 function automatic logic [PTR_SIZE:0] Add_Modulo_Depth (logic [PTR_SIZE:0] pointer, logic [PTR_SIZE-1:0] increment);
@@ -77,11 +81,16 @@ endfunction
 logic [IN_BUS_WIDTH-1:0] in_bus_latch;
 
 logic [IN_BUS_WIDTH-1:0] memory[MEMORY_DEPTH];
+logic [EOM_REGISTER_SIZE-1:0] end_of_message_register;
+
 logic [PTR_SIZE:0] wrPtr, nextWrPtr, nextWordPtr, lastCellPtr;
 logic [PTR_SIZE-1:0] wrPtr_short, nextWrPtr_short, nextWordPtr_short, lastCellPtr_short;
 
 logic [PTR_SIZE:0] rdPtr;
 logic [PTR_SIZE-1:0] rdPtr_short;
+
+logic [EOM_PTR_SIZE-1:0] eom_register_wrPointer;
+logic [EOM_PTR_SIZE-1:0] eom_register_rdPointer;
 
 logic buf_full, buf_empty;
 logic is_data_entered;
@@ -209,6 +218,7 @@ end
 //pointer odczytywania wiadomoœci
 always_ff @(posedge CLK, posedge A_RST) begin
     if(A_RST == `RESET_ACTIVE)
+        //rdPtr   <=  Add_Modulo_Depth(MEMORY_DEPTH-1,MEMORY_DEPTH-RATIO+1);
         rdPtr   <=  0;
     else
         if(CE == `CE_ACTIVE)
@@ -255,6 +265,35 @@ begin
     else if(state == MESSAGE /*&& is_data_entered*/)
         //gdy wiadomoœæ wpisuj normalnie
         memory[wrPtr_short] = in_bus_latch;
+end
+
+assign eom_register_wrPointer = wrPtr_short / RATIO;
+
+//wypisywanie do rejestru EFM
+always_ff @(posedge CLK, posedge A_RST) begin
+    if(A_RST == `RESET_ACTIVE)
+            end_of_message_register <= 0;
+    else
+        if(CE == `CE_ACTIVE)
+            if(state == END_OF_MESSAGE)
+                end_of_message_register[eom_register_wrPointer] <= 1'b1;
+            else if(state == MESSAGE)
+                end_of_message_register[eom_register_wrPointer] <= 1'b0;                     
+end
+
+assign eom_register_rdPointer = rdPtr_short / RATIO;
+
+//odczyt z rejestru EFM
+assign LAST_WORD_OF_MESSAGE = end_of_message_register[eom_register_rdPointer];
+
+//info o pierwszej wiadomosci po resecie
+always_ff @(posedge CLK, posedge A_RST) begin
+    if(A_RST == `RESET_ACTIVE)
+        FIRST_MESSAGE_AFTER_INIT    <=  1'b1;
+     else
+        if(CE == `CE_ACTIVE)
+            if(nextWrPtr >= RATIO)
+                FIRST_MESSAGE_AFTER_INIT    <=  1'b0;
 end
 
 //odczyt z pamiêci
