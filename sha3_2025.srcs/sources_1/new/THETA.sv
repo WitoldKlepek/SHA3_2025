@@ -1,4 +1,3 @@
-
 `define STATE_SIZE 1600
 `define CD_SIZE 320
 `define Z_WIDTH 64

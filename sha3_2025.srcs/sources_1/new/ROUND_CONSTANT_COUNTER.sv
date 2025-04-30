@@ -1,4 +1,3 @@
-
 `define Z_WIDTH 64
 
 module ROUND_CONSTANT_CONVERTER(

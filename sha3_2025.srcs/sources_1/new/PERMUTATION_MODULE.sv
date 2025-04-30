@@ -27,13 +27,13 @@
 
 module PERMUTATION_MODULE #(
     parameter SHA3_VERSION = 512,
-    localparam PERMUTATION_WORD_SIZE = `PERMUTATION_VOLUME - 2*SHA3_VERSION,
+    localparam PERMUTATION_WORD_SIZE = `PERMUTATION_VOLUME - 2*SHA3_VERSION
 )(
     input logic CLK,
     input logic CE,
     input logic A_RST,
-    input logic [PERMUTATION_WORD_SIZE-1] PERMUTATION_WORD,
-    output logic [SHA3_VERSION_SIZE-1:0] HASH_OUTPUT,
+    input logic [PERMUTATION_WORD_SIZE-1:0] PERMUTATION_WORD,
+    output logic [SHA3_VERSION-1:0] HASH_OUTPUT,
     output logic HASH_VALID,
     input logic WORD_WAITING_FROM_PADDING,
     input logic LAST_WORD_FROM_PADDING,
@@ -48,6 +48,7 @@ logic [$clog2(`PERMUTATION_NUMBER)-1:0] permutation_counter;
 
 logic first_message_f_padd_prev;
 logic load_word_without_req_sig;
+logic load_word;
 
 typedef enum {  INIT,
                 LOAD_NEW_WORD,
@@ -65,7 +66,6 @@ always_ff @(posedge CLK, posedge A_RST) begin
     else
         if(CE == `CE_ACTIVE)
             first_message_f_padd_prev   <= FIRST_MESSAGE_FROM_PADDING; 
-        end
 end
 
 assign load_word_without_req_sig = !FIRST_MESSAGE_FROM_PADDING & first_message_f_padd_prev;
@@ -80,7 +80,8 @@ always_ff @(posedge CLK, posedge A_RST) begin
             case(state)
                 INIT:
                     if(load_word_without_req_sig)
-                        state   <=  LOAD_NEW_WORD;
+                        //state   <=  LOAD_NEW_WORD;
+                        state   <=  PROCESSING;
                     else
                         state   <=  INIT;
                 LOAD_NEW_WORD:
@@ -96,16 +97,18 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 //REQ_FOR_NEW_WORD:
                     //state   <=  LOAD_NEW_WORD;
                 END_OF_MESSAGE_HASH_READY:
-                    if(WORD_WAITING)
+                    if(WORD_WAITING_FROM_PADDING)
                         state   <=  LOAD_NEW_WORD;
                     else
                         state   <=  NO_WORK;
                 NO_WORK:
-                    if(WORD_WAITING)
+                    if(WORD_WAITING_FROM_PADDING)
                         state   <=  LOAD_NEW_WORD;
+                    else
+                        state   <=  NO_WORK;
                 default:
-            endcase
-        
+                    state   <=  INIT;
+            endcase       
 end
 
 //licznik permutacji
@@ -116,7 +119,8 @@ always_ff @(posedge CLK, posedge A_RST) begin
         if(CE == `CE_ACTIVE)
             case(state)
                 INIT:
-                    //chyba nic?
+                    if(load_word_without_req_sig)
+                        permutation_counter <=  permutation_counter + 1;
                 LOAD_NEW_WORD:
                     permutation_counter <=  permutation_counter + 1;
                 PROCESSING:
@@ -129,9 +133,10 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 END_OF_MESSAGE_HASH_READY:
                     permutation_counter <=  0;    
                 NO_WORK:
+                    permutation_counter <=  permutation_counter;
                 default:
-            endcase
-        
+                    permutation_counter <=  0;  
+            endcase       
 end
 
 assign READ_REQ = (state == LOAD_NEW_WORD)? 1'b1 : 1'b0;
@@ -145,7 +150,23 @@ assign HASH_VALID = (state == END_OF_MESSAGE_HASH_READY)? 1'b1 : 1'b0;
 ROUND_CONSTANT_CONVERTER CONV1(
     .COUNTER(permutation_counter),
     .CONSTANT_VALUE(round_constant)
-)
+);
+
+assign load_word = (state == LOAD_NEW_WORD) || load_word_without_req_sig; 
+//wejscie rundy
+assign rdn_in = load_word ? :
+
+//rejestr rundy
+always@(posedge CLK, posedge A_RST) begin
+	if(A_RST == 1'b1)
+		s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};
+	else
+		if(CE == 1'b1)
+		  if(state == LOAD_NEW_WORD)
+		      s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};    
+		  else
+		      s_reg	<=	rnd_out;
+end
 
 RND RND1(
 	.IN(rnd_in),
