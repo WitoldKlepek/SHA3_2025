@@ -153,8 +153,11 @@ ROUND_CONSTANT_CONVERTER CONV1(
 );
 
 assign load_word = (state == LOAD_NEW_WORD) || load_word_without_req_sig; 
+
 //wejscie rundy
-assign rdn_in = load_word ? :
+assign rnd_in = load_word ? (state == {INIT, NO_WORK,HASH_VALID} ? {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD} 
+                    :{s_reg ^ {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD}})      
+                    : s_reg;
 
 //rejestr rundy
 always@(posedge CLK, posedge A_RST) begin

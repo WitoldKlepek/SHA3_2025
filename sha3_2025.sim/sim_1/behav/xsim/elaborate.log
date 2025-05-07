@@ -5,6 +5,6 @@ Running: D:/Vivado/2023.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3091] actual bit length 1600 differs from formal bit length 224 for port 'HASH_OUTPUT' [D:/vivado_projects/sha3/SHA3_vivado/sha3_2025/sha3_2025.srcs/sim_1/new/PERMUTATION_MODULE_TB.sv:47]
+WARNING: [VRFC 10-3091] actual bit length 1600 differs from formal bit length 224 for port 'HASH_OUTPUT' [C:/Users/Witek/OneDrive/Pulpit/sha3_2025/SHA3_2025/sha3_2025.srcs/sim_1/new/PERMUTATION_MODULE_TB.sv:47]
 Completed static elaboration
 INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel
