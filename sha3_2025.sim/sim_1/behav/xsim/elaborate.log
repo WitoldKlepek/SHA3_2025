@@ -1,10 +1,11 @@
 Vivado Simulator v2023.2
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
-Running: D:/Vivado/2023.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot PERMUTATION_MODULE_TB_behav xil_defaultlib.PERMUTATION_MODULE_TB xil_defaultlib.glbl -log elaborate.log 
+Running: D:/Vivado/2023.2/bin/unwrapped/win64.o/xelab.exe --incr --debug typical --relax --mt 2 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot SHA3_224_TB_behav xil_defaultlib.SHA3_224_TB xil_defaultlib.glbl -log elaborate.log 
 Using 2 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3091] actual bit length 1600 differs from formal bit length 224 for port 'HASH_OUTPUT' [C:/Users/Witek/OneDrive/Pulpit/sha3_2025/SHA3_2025/sha3_2025.srcs/sim_1/new/PERMUTATION_MODULE_TB.sv:47]
+WARNING: [VRFC 10-3091] actual bit length 224 differs from formal bit length 1 for port 'HASH_OUTPUT' [D:/vivado_projects/sha3/SHA3_2025/sha3_2025.srcs/sim_1/new/SHA3_224_TB.sv:23]
+WARNING: [VRFC 10-3091] actual bit length 1600 differs from formal bit length 224 for port 'HASH_OUTPUT' [D:/vivado_projects/sha3/SHA3_2025/sha3_2025.srcs/sources_1/new/SHA3_224_IN_32W.sv:75]
 Completed static elaboration
 INFO: [XSIM 43-4323] No Change in HDL. Linking previously generated obj files to create kernel

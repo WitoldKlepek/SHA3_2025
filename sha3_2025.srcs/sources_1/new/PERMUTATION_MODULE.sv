@@ -33,7 +33,7 @@ module PERMUTATION_MODULE #(
     input logic CE,
     input logic A_RST,
     input logic [PERMUTATION_WORD_SIZE-1:0] PERMUTATION_WORD,
-    output logic [SHA3_VERSION-1:0] HASH_OUTPUT,
+    output logic [`PERMUTATION_VOLUME-1:0] HASH_OUTPUT,
     output logic HASH_VALID,
     input logic WORD_WAITING_FROM_PADDING,
     input logic LAST_WORD_FROM_PADDING,
@@ -121,6 +121,8 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 INIT:
                     if(load_word_without_req_sig)
                         permutation_counter <=  permutation_counter + 1;
+                    else
+                        permutation_counter   <= 0;
                 LOAD_NEW_WORD:
                     permutation_counter <=  permutation_counter + 1;
                 PROCESSING:
@@ -155,26 +157,56 @@ ROUND_CONSTANT_CONVERTER CONV1(
 assign load_word = (state == LOAD_NEW_WORD) || load_word_without_req_sig; 
 
 //wejscie rundy
-assign rnd_in = load_word ? (state == {INIT, NO_WORK,HASH_VALID} ? {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD} 
-                    :{s_reg ^ {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD}})      
-                    : s_reg;
+//assign rnd_in = load_word ? (state == {INIT, NO_WORK,HASH_VALID} ? {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD} 
+                    //:{s_reg ^ {{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}},PERMUTATION_WORD}})      
+                    //: s_reg;
+always_comb begin
+    case(state)
+        INIT: 
+            rnd_in = {PERMUTATION_WORD,{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}}};
+        LOAD_NEW_WORD:
+                rnd_in = s_reg ^ {PERMUTATION_WORD,{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}}};
+        PROCESSING:
+            rnd_in  = s_reg;
+    endcase  
+end
+
+/*always@(posedge CLK, posedge A_RST) begin
+    if(A_RST == `RESET_ACTIVE)
+        rnd_in  = 0;
+    else
+        if(CE == `CE_ACTIVE)
+            case(state)
+                INIT: 
+                    rnd_in  <= {PERMUTATION_WORD,{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}}};
+                LOAD_NEW_WORD:
+                    rnd_in  <= s_reg ^ {PERMUTATION_WORD,{(`PERMUTATION_VOLUME-PERMUTATION_WORD_SIZE){1'b0}}};
+                PROCESSING:
+                    rnd_in  <= s_reg;
+            endcase
+end*/
 
 //rejestr rundy
 always@(posedge CLK, posedge A_RST) begin
-	if(A_RST == 1'b1)
+	if(A_RST == `RESET_ACTIVE)
 		s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};
 	else
-		if(CE == 1'b1)
-		  if(state == LOAD_NEW_WORD)
-		      s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};    
-		  else
+		if(CE == `CE_ACTIVE)
+		  //if(state == LOAD_NEW_WORD)
+		      //s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};    
+		  //else 
+		  if(state == PROCESSING | state == LOAD_NEW_WORD | load_word_without_req_sig)
 		      s_reg	<=	rnd_out;
 end
+
+
 
 RND RND1(
 	.IN(rnd_in),
 	.OUT(rnd_out),
 	.RND_CONST(round_constant)
 );
+
+assign HASH_OUTPUT = s_reg;
 
 endmodule

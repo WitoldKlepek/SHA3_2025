@@ -1,0 +1,7 @@
+Running: xsim.dir/PERMUTATION_MODULE_TB2_behav/xsimk.exe -simmode gui -wdb PERMUTATION_MODULE_TB2_behav.wdb -simrunnum 0 -socket 51195
+Design successfully loaded
+Design Loading Memory Usage: 10392 KB (Peak: 10392 KB)
+Design Loading CPU Usage: 0 ms
+Simulation completed
+Simulation Memory Usage: 13564 KB (Peak: 13564 KB)
+Simulation CPU Usage: 61 ms

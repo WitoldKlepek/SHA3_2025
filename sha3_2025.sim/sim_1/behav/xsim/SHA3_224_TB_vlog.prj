@@ -3,14 +3,17 @@ sv xil_defaultlib  \
 "../../../../sha3_2025.srcs/sources_1/new/CHI.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/CHI_row.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/IOTA.sv" \
+"../../../../sha3_2025.srcs/sources_1/new/PADDING_MODULE.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/PERMUTATION_MODULE.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/PI.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/RHO.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/RND.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/ROUND_CONSTANT_COUNTER.sv" \
+"../../../../sha3_2025.srcs/sources_1/new/SHA3_224_IN_32W.sv" \
+"../../../../sha3_2025.srcs/sources_1/new/SHA3_MODULE.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/THETA.sv" \
 "../../../../sha3_2025.srcs/sources_1/new/THETA_column.sv" \
-"../../../../sha3_2025.srcs/sim_1/new/PERMUTATION_MODULE_TB.sv" \
+"../../../../sha3_2025.srcs/sim_1/new/SHA3_224_TB.sv" \
 
 # compile glbl module
 verilog xil_defaultlib "glbl.v"
