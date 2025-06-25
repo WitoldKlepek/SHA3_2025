@@ -2,24 +2,26 @@
 
 module SHA3_224_2hash_20break_TB();
 
+localparam MEMORY_DEPTH = 1024;
 localparam DATA_INPUT_WIDTH = 32;
 localparam OUTPUT_HASH_SIZE = 224;
 localparam PERMUTATION_INPUT_WORD_WIDTH = 1600 - 2 * OUTPUT_HASH_SIZE;
 
 logic [DATA_INPUT_WIDTH-1:0] data_in_seq;
 logic [OUTPUT_HASH_SIZE-1:0] hash_out;
-logic clk, a_rst, ce, data_in_valid, hash_out_valid;
-logic blocked_in;
+logic clk, a_rst, ce, data_in_valid, hash_out_valid,blocked_in;
 
-SHA3_224_IN_32W UUT (
-    .DATA_IN_SEQ(data_in_seq),
-    .HASH_OUT(hash_out),
+SHA3_224_IN_32W #(
+    .MEMORY_DEPTH(MEMORY_DEPTH)
+)   UUT (
     .CLK(clk),
     .A_RST(a_rst),
     .CE(ce),
-    .DATA_IN_VALID(data_in_valid),
-    .HASH_OUT_VALID(hash_out_valid),
-    .BLOCKED_IN(blocked_in) 
+    .IN_BUS(data_in_seq),
+    .IN_VALID(data_in_valid),
+    .BLOCKED_INPUT(blocked_in),
+    .SHA3_HASH_OUTPUT(hash_out),
+    .SHA3_HASH_VALID(hash_out_valid)
 );
 
 initial begin

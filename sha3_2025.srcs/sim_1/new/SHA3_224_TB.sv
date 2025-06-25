@@ -20,8 +20,8 @@ SHA3_224_IN_32W #(
     .IN_BUS(data_in_seq),
     .IN_VALID(data_in_valid),
     .BLOCKED_INPUT(blocked_in),
-    .HASH_OUTPUT(hash_out),
-    .HASH_VALID(hash_out_valid)
+    .SHA3_HASH_OUTPUT(hash_out),
+    .SHA3_HASH_VALID(hash_out_valid)
 );
 
 initial begin

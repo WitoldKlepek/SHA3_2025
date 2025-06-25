@@ -91,7 +91,10 @@ always_ff @(posedge CLK, posedge A_RST) begin
                         if(LAST_WORD_FROM_PADDING)
                             state   <= END_OF_MESSAGE_HASH_READY;
                         else
-                            state   <= LOAD_NEW_WORD;
+                            if(WORD_WAITING_FROM_PADDING)
+                                state   <= LOAD_NEW_WORD;
+                            else
+                                state   <= NO_WORK;
                     else
                         state   <= PROCESSING;
                 //REQ_FOR_NEW_WORD:
@@ -127,7 +130,10 @@ always_ff @(posedge CLK, posedge A_RST) begin
                     permutation_counter <=  permutation_counter + 1;
                 PROCESSING:
                     if(permutation_counter == `PERMUTATION_NUMBER - 1)
-                        permutation_counter <=  0;
+                        if(WORD_WAITING_FROM_PADDING)
+                            permutation_counter <=  0;
+                        else
+                            permutation_counter <= `PERMUTATION_NUMBER - 1;
                     else
                         permutation_counter <=  permutation_counter + 1;
                 //REQ_FOR_NEW_WORD:
@@ -135,13 +141,21 @@ always_ff @(posedge CLK, posedge A_RST) begin
                 END_OF_MESSAGE_HASH_READY:
                     permutation_counter <=  0;    
                 NO_WORK:
-                    permutation_counter <=  permutation_counter;
+                    if(permutation_counter == `PERMUTATION_NUMBER - 1)
+                        if(WORD_WAITING_FROM_PADDING)
+                            permutation_counter <=  0;
+                    else
+                        permutation_counter <=  permutation_counter;
                 default:
                     permutation_counter <=  0;  
             endcase       
 end
 
-assign READ_REQ = (state == LOAD_NEW_WORD)? 1'b1 : 1'b0;
+//assign READ_REQ = (state == LOAD_NEW_WORD)? 1'b1 : 1'b0;
+assign READ_REQ =   ((permutation_counter == `PERMUTATION_NUMBER - 1) && !LAST_WORD_FROM_PADDING && WORD_WAITING_FROM_PADDING) ? 1'b1
+                    :((state == NO_WORK || state == END_OF_MESSAGE_HASH_READY) && WORD_WAITING_FROM_PADDING) ? 1'b1
+                    : 1'b0;
+                  
 //pobranie wiadomosci
 
 
@@ -197,6 +211,8 @@ always@(posedge CLK, posedge A_RST) begin
 		  //else 
 		  if(state == PROCESSING | state == LOAD_NEW_WORD | load_word_without_req_sig)
 		      s_reg	<=	rnd_out;
+		  else if(state == END_OF_MESSAGE_HASH_READY)
+		      s_reg	<=	{`PERMUTATION_VOLUME{1'b0}};
 end
 
 
