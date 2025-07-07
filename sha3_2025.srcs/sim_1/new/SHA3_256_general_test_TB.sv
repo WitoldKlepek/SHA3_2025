@@ -1,0 +1,77 @@
+`timescale 1ns / 1ps
+
+/*
+10mess 89ABCDEF X 10: hash: 001AE7C212934377A74116AAE295F1485F84678BF2EA2059CFD6CF660A636A63001AE7C212934377A74116AAE295F1485F84678BF2EA2059CFD6CF660A636A00
+15mess 89ABCDEF X 15: hash: 91F6AFBE25E8CDA962BCB96383D83EAA13404ED805FA37369B3D9B5C5F6FEC6B91F6AFBE25E8CDA962BCB96383D83EAA13404ED805FA37369B3D9B5C5F6FEC91
+20mess 89ABCDEF X 20: hash: 8FA61CD6E6FFBEB0844D9569272ADDB472DB468961947E327A3E613647AF45878FA61CD6E6FFBEB0844D9569272ADDB472DB468961947E327A3E613647AF458F
+25mess 89ABCDEF X 25: hash: EF76EECDCAB89440E5AECC87B90DC97C337229A88147BDB13D564F30180BFFDDEF76EECDCAB89440E5AECC87B90DC97C337229A88147BDB13D564F30180BFFEF
+30mess 89ABCDEF X 30: hash: 4FEA919B222CDAFD24D4FC2A8B4E1114351A17F8CE04BD4148789FDFD8B877DB4FEA919B222CDAFD24D4FC2A8B4E1114351A17F8CE04BD4148789FDFD8B8774F
+33mess 89ABCDEF X 33: hash: 3D63C83250C1C6451EFBE0AC405B8E8F8CEDBC88F9336DFAF4F68F4DCFEA65703D63C83250C1C6451EFBE0AC405B8E8F8CEDBC88F9336DFAF4F68F4DCFEA653D
+34mess 89ABCDEF X 34: hash: 4003BF4A9E2BF4F5852538E1B90D6080E383AB205F431285D043B75CCD3888904003BF4A9E2BF4F5852538E1B90D6080E383AB205F431285D043B75CCD388840
+35mess 89ABCDEF X 35: hash: 435A8AA51B39C6DF05B4EAA0E720864A946A353A7AD15350FA172667F9F42131435A8AA51B39C6DF05B4EAA0E720864A946A353A7AD15350FA172667F9F42143
+*/
+
+
+module SHA3_256_general_test_TB();
+
+localparam DATA_INPUT_WIDTH = 32;
+localparam MEMORY_DEPTH = 5;
+localparam OUTPUT_HASH_SIZE = 256;
+localparam PERMUTATION_INPUT_WORD_WIDTH = 1600 - 2 * OUTPUT_HASH_SIZE;
+
+logic [DATA_INPUT_WIDTH-1:0] data_in_seq;
+logic [OUTPUT_HASH_SIZE-1:0] hash_out;
+logic clk, a_rst, ce, data_in_valid, hash_out_valid,blocked_in;
+
+SHA3_256_IN_32W #(
+    .MEMORY_DEPTH_RATIO_SIZED(MEMORY_DEPTH)
+)   UUT (
+    .CLK(clk),
+    .A_RST(a_rst),
+    .CE(ce),
+    .IN_BUS(data_in_seq),
+    .IN_VALID(data_in_valid),
+    .BLOCKED_INPUT(blocked_in),
+    .SHA3_HASH_OUTPUT(hash_out),
+    .SHA3_HASH_VALID(hash_out_valid)
+);
+
+initial begin
+	#0 clk = 1'b1;
+	forever 
+	#5 clk = ~clk;
+end
+
+initial begin
+    #0 a_rst       =  1'b1;
+    ce          =  1'b0;
+    data_in_valid   =  1'b0;
+    #50 a_rst   =  1'b0;
+    #50 ce      =  1'b1; //100
+    #50 data_in_valid   = 1'b1; //1mess start 150
+    #100 data_in_valid  = 1'b0; //1mess end 250
+    #10 data_in_valid   = 1'b1; //2mess start 260
+    #150 data_in_valid  = 1'b0; //2mess end 410
+    #10 data_in_valid   = 1'b1; //3mess start 420
+    #200 data_in_valid  = 1'b0; //3mess end 620
+    #10 data_in_valid   = 1'b1; //4mess start 630
+    #250 data_in_valid  = 1'b0; //4mess end 880
+    #10 data_in_valid   = 1'b1; //5mess start 890
+    #300 data_in_valid  = 1'b0; //5mess end 1190
+    #10 data_in_valid   = 1'b1; //6mess start 1200
+    #330 data_in_valid  = 1'b0; //6mess end 1550
+    #10 data_in_valid   = 1'b1; //7mess start 1560
+    #340 data_in_valid  = 1'b0; //7mess end 1920
+    #10 data_in_valid   = 1'b1; //8mess start 1930
+    #350 data_in_valid  = 1'b0; //8mess end 2300
+    #1000 $finish;
+    
+end
+
+initial begin
+    #0 data_in_seq      =  {4{8'hF0}};
+    #140 data_in_seq    =  {32'h91D5B3F7};
+    #2160 data_in_seq   =   {4{8'hF0}};
+end
+
+endmodule

@@ -2,7 +2,7 @@
 
 module SHA3_384_REF1600_TB();
 
-localparam MEMORY_DEPTH = 1024;
+localparam MEMORY_DEPTH = 10;
 localparam DATA_INPUT_WIDTH = 32;
 localparam OUTPUT_HASH_SIZE = 384;
 localparam PERMUTATION_INPUT_WORD_WIDTH = 1600 - 2 * OUTPUT_HASH_SIZE;
@@ -12,7 +12,7 @@ logic [OUTPUT_HASH_SIZE-1:0] hash_out;
 logic clk, a_rst, ce, data_in_valid, hash_out_valid,blocked_in;
 
 SHA3_384_IN_32W #(
-    .MEMORY_DEPTH(MEMORY_DEPTH)
+    .MEMORY_DEPTH_RATIO_SIZED(MEMORY_DEPTH)
 )   UUT (
     .CLK(clk),
     .A_RST(a_rst),

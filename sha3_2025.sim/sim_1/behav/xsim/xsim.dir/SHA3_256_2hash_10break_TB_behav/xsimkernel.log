@@ -1,7 +1,7 @@
-Running: xsim.dir/SHA3_256_2hash_10break_TB_behav/xsimk.exe -simmode gui -wdb SHA3_256_2hash_10break_TB_behav.wdb -simrunnum 0 -socket 51255
+Running: xsim.dir/SHA3_256_2hash_10break_TB_behav/xsimk.exe -simmode gui -wdb SHA3_256_2hash_10break_TB_behav.wdb -simrunnum 0 -socket 50783
 Design successfully loaded
-Design Loading Memory Usage: 12208 KB (Peak: 12208 KB)
-Design Loading CPU Usage: 46 ms
+Design Loading Memory Usage: 11620 KB (Peak: 11620 KB)
+Design Loading CPU Usage: 30 ms
 Simulation completed
-Simulation Memory Usage: 13600 KB (Peak: 13600 KB)
+Simulation Memory Usage: 13008 KB (Peak: 13008 KB)
 Simulation CPU Usage: 202 ms

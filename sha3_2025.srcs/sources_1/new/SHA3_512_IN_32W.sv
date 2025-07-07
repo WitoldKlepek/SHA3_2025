@@ -4,10 +4,11 @@
 `define PERMUTATION_VOLUME 1600
 
 module SHA3_512_IN_32W #(
-    parameter MEMORY_DEPTH = `DEPTH,
+    parameter MEMORY_DEPTH_RATIO_SIZED = `DEPTH,
     localparam SHA3_VERSION = 512,
     localparam ACC_LEVEL = 2,
-    localparam IN_BUS_WIDTH = 32
+    localparam IN_BUS_WIDTH = 32,
+    localparam RATIO = (`PERMUTATION_VOLUME - 2 * SHA3_VERSION)/IN_BUS_WIDTH
 )   (
     input logic CLK,
     input logic A_RST,
@@ -24,7 +25,7 @@ logic [SHA3_VERSION-1:0] hash_output_permutation_out;
 SHA3_MODULE_ACC #(
     .SHA3_VERSION(SHA3_VERSION),
     .IN_BUS_WIDTH(IN_BUS_WIDTH),
-    .MEMORY_DEPTH(MEMORY_DEPTH),
+    .MEMORY_DEPTH(MEMORY_DEPTH_RATIO_SIZED * RATIO),
     .ACC_LEVEL(ACC_LEVEL) 
 )   SHA3_512_IN_32W   (
     .CLK(CLK),

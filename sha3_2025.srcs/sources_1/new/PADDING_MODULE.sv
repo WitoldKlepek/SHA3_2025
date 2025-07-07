@@ -170,7 +170,7 @@ end
 assign nextWordPtr = NextWordCalc(wrPtr);
 //assign lastCellPtr = Add_Modulo_Depth(nextWordPtr, MEMORY_DEPTH-1);
 assign lastCellPtr  = (nextWordPtr_short == 0) ? {!nextWordPtr[PTR_SIZE],MEMORY_DEPTH-1} : nextWordPtr - 1;
-assign nextWrPtr = (state == MESSAGE || buf_empty) ? Add_Modulo_Depth(wrPtr, 1) : nextWordPtr;
+assign nextWrPtr = (state == MESSAGE || state == INIT) ? Add_Modulo_Depth(wrPtr, 1) : nextWordPtr;
         
 //póki co bez logiki modulo!!!
 //pointery wpisywania wiadomoœci
@@ -230,8 +230,9 @@ end
 assign buf_empty = (wrPtr == rdPtr )? 1'b1 : 1'b0;
 //sygnalizacja pe³nego buforu
 //assign buf_full = ( (wrPtr_short == rdPtr_short) && (wrPtr[PTR_SIZE] != rdPtr[PTR_SIZE]) ) ? 1'b1 : 1'b0; 
-assign buf_full = ( (nextWrPtr_short == rdPtr_short) && (nextWrPtr[PTR_SIZE] != rdPtr[PTR_SIZE]) ) ? 1'b1 : 1'b0; 
-assign BLOCKED_INPUT = buf_full;
+assign buf_full = ( (nextWrPtr_short == rdPtr_short) && (nextWrPtr[PTR_SIZE] != rdPtr[PTR_SIZE]) ) ? 1'b1 : 1'b0;
+//assign buf_full = distanceWrToRd ?  
+assign BLOCKED_INPUT = buf_full && !READ_REQ_PERM;
 
 always_ff @(posedge CLK, posedge A_RST) begin
     if(A_RST == `RESET_ACTIVE) 
