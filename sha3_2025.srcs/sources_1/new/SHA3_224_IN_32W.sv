@@ -1,12 +1,15 @@
 `timescale 1ns / 1ps
 
-`define DEPTH 1024
+`define FPGA_MEMORY_SIZE 32768
+`define DEPTH $floor(`FPGA_MEMORY_SIZE/32/36)
 `define PERMUTATION_VOLUME 1600
+`define IB_WIDTH 32
 
 module SHA3_224_IN_32W #(
+    //parameter MEMORY_DEPTH_RATIO_SIZED = `DEPTH,
     parameter MEMORY_DEPTH_RATIO_SIZED = `DEPTH,
     localparam SHA3_VERSION = 224,
-    localparam IN_BUS_WIDTH = 32,
+    localparam IN_BUS_WIDTH = `IB_WIDTH,
     localparam RATIO = (`PERMUTATION_VOLUME - 2 * SHA3_VERSION)/IN_BUS_WIDTH
 )   (
     input logic CLK,

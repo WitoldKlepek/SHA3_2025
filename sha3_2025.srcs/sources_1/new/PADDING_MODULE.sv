@@ -10,7 +10,7 @@
 // Target Devices: 
 // Tool Versions: 
 // Description: 
-// 
+// a
 // Dependencies: 
 // 
 // Revision:
@@ -24,9 +24,10 @@
 `define RESET_ACTIVE 1'b1
 `define CE_ACTIVE 1'b1
 `define DEPTH 90
+`define IB_WIDTH 32
 
 module PADDING_MODULE #(
-    parameter IN_BUS_WIDTH = 32,
+    parameter IN_BUS_WIDTH = `IB_WIDTH,
     parameter SHA3_VERSION = 512,
     parameter MEMORY_DEPTH = `DEPTH,
     localparam PERMUTATION_WORD_SIZE = `PERMUTATION_VOLUME - 2*SHA3_VERSION,
@@ -80,7 +81,7 @@ endfunction
 
 logic [IN_BUS_WIDTH-1:0] in_bus_latch;
 
-logic [IN_BUS_WIDTH-1:0] memory[MEMORY_DEPTH];
+logic [MEMORY_DEPTH-1:0][IN_BUS_WIDTH-1:0] memory;
 logic [EOM_REGISTER_SIZE-1:0] end_of_message_register;
 
 logic [PTR_SIZE:0] wrPtr, nextWrPtr, nextWordPtr, lastCellPtr;
@@ -232,7 +233,8 @@ assign buf_empty = (wrPtr == rdPtr )? 1'b1 : 1'b0;
 //assign buf_full = ( (wrPtr_short == rdPtr_short) && (wrPtr[PTR_SIZE] != rdPtr[PTR_SIZE]) ) ? 1'b1 : 1'b0; 
 assign buf_full = ( (nextWrPtr_short == rdPtr_short) && (nextWrPtr[PTR_SIZE] != rdPtr[PTR_SIZE]) ) ? 1'b1 : 1'b0;
 //assign buf_full = distanceWrToRd ?  
-assign BLOCKED_INPUT = buf_full && !READ_REQ_PERM;
+//assign BLOCKED_INPUT = buf_full && !READ_REQ_PERM;
+assign BLOCKED_INPUT = buf_full && (state == NO_MESSAGE || state == END_OF_MESSAGE);
 
 always_ff @(posedge CLK, posedge A_RST) begin
     if(A_RST == `RESET_ACTIVE) 

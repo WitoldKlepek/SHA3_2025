@@ -1,2 +1,2 @@
 Time resolution is 1 ps
-$finish called at time : 9820 ns : File "D:/vivado_projects/sha3/SHA3_2025/sha3_2025.srcs/sim_1/new/SHA3_224_full_memory_TB.sv" Line 63
+$finish called at time : 3300 ns : File "D:/vivado_projects/sha3/SHA3_2025/sha3_2025.srcs/sim_1/new/SHA3_224_general_test_tb.sv" Line 67

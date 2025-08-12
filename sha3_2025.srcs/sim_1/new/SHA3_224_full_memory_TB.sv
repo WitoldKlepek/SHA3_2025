@@ -59,7 +59,9 @@ initial begin
     #50 data_in_valid   = 1'b1; //1mess start 150
     #4330 data_in_valid   = 1'b0; //1mess end 4480
     #10 data_in_valid   = 1'b1; //2mess start 4490
-    #4330 data_in_valid   = 1'b0; //1mess end 8820
+    #4330 data_in_valid   = 1'b0; //2mess end 8820
+    #20 data_in_valid   = 1'b1; //3mess start 8840
+    #4330 data_in_valid   = 1'b0; //3mess end 13170
     #1000 $finish;
     
 end
@@ -67,20 +69,29 @@ end
 initial begin
     #0 data_in_seq      =  {4{8'hF0}};
     #150 data_in_seq    =  {32'h91D5B3F7};
-    #720 data_in_seq    =  {32'hFFFFFFFF}; //1240
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //870
+    #720 data_in_seq    =  {32'h91D5B3F7}; //1590
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //2310
+    #720 data_in_seq    =  {32'h91D5B3F7}; //3030
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //3750
+    #720 data_in_seq    =  {32'h91D5B3F7}; //4470
+    #10 data_in_seq     =  {32'hFFFFFFFF}; //4480
+    #10 data_in_seq     =  {32'h91D5B3F7}; //4490
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //5210
+    #720 data_in_seq    =  {32'h91D5B3F7}; //5930
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //6650
+    #720 data_in_seq    =  {32'h91D5B3F7}; //7370
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //8090
+    #720 data_in_seq    =  {32'h91D5B3F7}; //8810
+    #10 data_in_seq     =  {32'hFFFFFFFF}; //8820
+    #20 data_in_seq     =  {32'h91D5B3F7}; //8840
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //9560
+    #720 data_in_seq    =  {32'h91D5B3F7}; //10280
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //11000
+    #720 data_in_seq    =  {32'h91D5B3F7}; //11720
+    #720 data_in_seq    =  {32'hFFFFFFFF}; //12440
+    #720 data_in_seq    =  {32'h91D5B3F7}; //13160
     #720 data_in_seq    =  {32'hFFFFFFFF}; //
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
-    #720 data_in_seq    =  {32'hFFFFFFFF}; //
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
-    #10 data_in_seq     =  {32'hFFFFFFFF}; //
-    #10 data_in_seq     =  {32'h91D5B3F7};
-    #720 data_in_seq    =  {32'hFFFFFFFF}; //1240
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
-    #720 data_in_seq    =  {32'hFFFFFFFF}; //
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
-    #720 data_in_seq    =  {32'hFFFFFFFF}; //
-    #720 data_in_seq    =  {32'h91D5B3F7}; //
 end
 
 endmodule
